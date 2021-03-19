@@ -1,0 +1,52 @@
+SLTWRKの使い方
+	SLTWRK
+		+0 [ for PAGE0 ]
+		+1 [ for PAGE0 ]
+		+2 [ for PAGE1 ]
+		+3 [ for PAGE1 ]
+		+4 [ for PAGE2 ]
+		+5 [ for PAGE2 ]
+		+6 [ for PAGE3 ]
+		+7 [ for PAGE3 ]
+
+	B-SUPがROM上の場合のSLTWRKの使い方
+		+0 [ ワークエリアのアドレス下位 ]
+		+1 [ ワークエリアのアドレス上位 ]
+		+2 [ 元のH.TIMI +0              ]
+		+3 [ 元のH.TIMI +1              ]
+		+4 [ 元のH.TIMI +2              ]
+		+5 [ 元のH.TIMI +3              ]
+		+6 [ 元のH.TIMI +4              ]
+		+7 [ Page2 RAM SLOT#            ]
+
+	B-SUPがRAM上の場合はSLTWRKは使わない
+
+各命令の ROM/RAM判別方法
+	get_p1_slot で page1 の SLOT# を取得してから、その値が RAMAD1 と一致していたら
+	RAM上に存在すると判別する。
+	その場合、ワークエリアのアドレスは 8000h - work_area_size に固定。
+
+	一致しない場合は、ROMであると判定。
+
+スプライト情報 (32要素)  [Sprite information area]
+	+0 [属性              ]		0: 非表示, 1: 通常, 2: 連結
+	+1 [Y座標 下位        ]		連結の場合は、ここに連結するスプライト情報# を格納。
+	+2 [Y座標 上位        ]
+	+3 [X座標 下位        ]
+	+4 [X座標 上位        ]
+	+5 [パターン#         ]
+	+6 [色                ]
+	+7 [移動ベクトル残下位]
+	+8 [移動ベクトル残上位]
+	+9 [移動ベクトルY 下位]
+	+10[移動ベクトルY 上位]
+	+11[移動ベクトルX 下位]
+	+12[移動ベクトルX 上位]
+	+13[Reserved          ]
+	+14[Reserved          ]
+	+15[Reserved          ]
+	+16[Reserved          ]
+
+
+
+スプライトの座標に、小数部を含めるのはやめるか？
