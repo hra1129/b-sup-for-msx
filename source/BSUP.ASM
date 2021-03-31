@@ -442,6 +442,7 @@ command_jump_table::
 		command_jump_table_item		"SPUT", call_sput
 		command_jump_table_item		"SLNK", call_slnk
 		command_jump_table_item		"SMOV", call_smov
+		command_jump_table_item		"SEPT", call_sept
 		command_jump_table_item		"SSEE", call_ssee
 		command_jump_table_item		"BFIL", call_bfil
 		command_jump_table_item		"VFIL", call_vfil
