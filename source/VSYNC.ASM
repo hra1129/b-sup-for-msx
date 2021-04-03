@@ -96,6 +96,7 @@ call_vcwt::
 		pop			bc
 
 wait_loop:
+		; V-Sync counter ‚ğ“Ç‚İo‚·
 		di
 		ld			e, [hl]
 		inc			hl
