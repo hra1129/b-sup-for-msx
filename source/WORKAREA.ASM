@@ -32,9 +32,15 @@ work_save_p2_slot			:=	work_current_p2_slot + size_current_p2_slot
 size_save_p2_slot			:=	1		; byte(s)
 
 ; -----------------------------------------------------------------------------
+;	V-Sync wait counter
+; -----------------------------------------------------------------------------
+work_vsync_count			:=	work_save_p2_slot + size_save_p2_slot
+size_vsync_count			:=	2		; byte(s)
+
+; -----------------------------------------------------------------------------
 ;	Sprite# ‚É‘Î‰ž‚·‚é Sprite information#
 ; -----------------------------------------------------------------------------
-work_1st_sprite				:= work_save_p2_slot + size_save_p2_slot
+work_1st_sprite				:= work_vsync_count + size_vsync_count
 size_1st_sprite				:= 1		; byte(s)
 
 ; -----------------------------------------------------------------------------

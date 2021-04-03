@@ -122,6 +122,9 @@ initialize_workarea::
 		call		get_p2_slot
 		ld			[ix + work_p2_slot], a
 		xor			a, a
+		ld			[ix + work_vsync_count + 0], a
+		ld			[ix + work_vsync_count + 1], a
+		ld			[ix + work_1st_sprite], a
 		ld			[ix + work_sprite_drive_on], a
 
 		; Clear sprite information area
@@ -395,6 +398,7 @@ interval_timer_proc_for_ram::
 ; ==============================================================================
 		scope		interval_timer_proc
 interval_timer_proc::
+		call		vsync_counter
 		call		sprite_driver
 		ret
 		endscope
@@ -418,6 +422,7 @@ new_h_timi::
 		include		"NAMETBL.ASM"
 		include		"PCG.ASM"
 		include		"SPRITE.ASM"
+		include		"VSYNC.ASM"
 
 ; ==============================================================================
 ;	Jump Table (ATTENSION!!: s_cmmand must be sorted)
@@ -455,6 +460,8 @@ command_jump_table::
 		command_jump_table_item		"COL2", call_col2
 		command_jump_table_item		"COL3", call_col3
 		command_jump_table_item		"BCLS", call_bcls
+		command_jump_table_item		"VCST", call_vcst
+		command_jump_table_item		"VCWT", call_vcwt
 		command_jump_table_item		"BFNT", call_bfnt
 		command_jump_table_item		"SSTP", call_sstp
 		command_jump_table_item		"SDRV", call_sdrv
