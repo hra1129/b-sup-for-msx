@@ -126,3 +126,42 @@ loop:
 		ei
 		ret
 		endscope
+
+; ==============================================================================
+;	SETWRT
+;	input)
+;		HL .... VRAM address
+;	output)
+;		N/A
+;	break)
+;		AF
+; ==============================================================================
+		scope		bsup_setwrt
+bsup_setwrt::
+		ld			a, l
+		di
+		out			[0x99], a
+		ld			a, h
+		or			a, 0x40
+		out			[0x99], a
+		ret
+		endscope
+
+; ==============================================================================
+;	SETRD
+;	input)
+;		HL .... VRAM address
+;	output)
+;		N/A
+;	break)
+;		AF
+; ==============================================================================
+		scope		bsup_setrd
+bsup_setrd::
+		ld			a, l
+		di
+		out			[0x99], a
+		ld			a, h
+		out			[0x99], a
+		ret
+		endscope
