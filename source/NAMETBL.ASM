@@ -380,7 +380,7 @@ x_loop1w:
 		ex			de, hl
 		add			hl, bc
 		ex			de, hl
-		pop			bc					; ★ここで期待の値が得られていない
+		pop			bc
 
 		dec			c
 		jp			nz, copy_to_top
@@ -461,6 +461,171 @@ end_of_bcpy:
 		add			hl, sp
 		ld			sp, hl
 
+		exx
+		dec			hl
+		ld			ix, calbas_chrgtr
+		call		calbas
+		cp			a, ')'
+		jp			nz, syntax_error
+		inc			hl
+		jp			exit_call_statement
+		endscope
+
+; ==============================================================================
+;	CALL BPUT( <X>, <Y>, <Width>, <Height>, <String> )
+; ==============================================================================
+		scope		call_bput
+call_bput::
+		dec			hl
+		ld			ix, calbas_chrgtr
+		call		calbas
+		cp			a, '('
+		jp			nz, syntax_error
+		inc			hl
+
+		ld			ix, calbas_getbyt
+		call		calbas
+		push		af								; 第1引数保存 <X>
+
+		dec			hl
+		ld			ix, calbas_chrgtr
+		call		calbas
+		cp			a, ','
+		jp			nz, syntax_error
+		inc			hl
+
+		ld			ix, calbas_getbyt
+		call		calbas
+		push		af								; 第2引数保存 <Y>
+
+		dec			hl
+		ld			ix, calbas_chrgtr
+		call		calbas
+		cp			a, ','
+		jp			nz, syntax_error
+		inc			hl
+
+		ld			ix, calbas_getbyt
+		call		calbas
+		push		af								; 第3引数保存 <Width>
+
+		dec			hl
+		ld			ix, calbas_chrgtr
+		call		calbas
+		cp			a, ','
+		jp			nz, syntax_error
+		inc			hl
+
+		ld			ix, calbas_getbyt
+		call		calbas
+		push		af								; 第4引数保存 <Height>
+
+		dec			hl
+		ld			ix, calbas_chrgtr
+		call		calbas
+		cp			a, ','
+		jp			nz, syntax_error
+		inc			hl
+
+		ld			ix, calbas_frmevl
+		call		calbas
+
+		push		hl								; BASICコードアドレス
+		ld			ix, calbas_frestr
+		call		calbas
+		ex			de, hl							; DE = 第5引数保存 <String>
+		pop			hl								; BASICコードアドレス
+
+		exx											; BASICコードアドレス, 文字列<String>アドレスを裏レジスタに保存
+		pop			hl
+		pop			de
+		ld			e, h							; D = <Height>, E = <Width>
+		pop			hl
+		pop			bc
+		ld			c, h							; B = <X>, C = <Y>
+
+		ld			a, b
+		cp			a, 32
+		jp			nc, exit_bput					; 画面外なら何もしない
+
+		ld			a, c
+		cp			a, 24
+		jp			nc, exit_bput					; 画面外なら何もしない
+
+		add			a, d
+		sub			a, 24
+		jp			c, skip_adjust_height
+		; 下に一部分はみ出す場合は、それをカット D-(A-24) = -(A-D-24)
+		sub			a, d
+		neg
+skip_adjust_height:
+
+		; 座標を VRAMアドレス に変換: HL = B + C*32 + 0x1800
+		ld			h, 0x18 >> 2
+		ld			a, c							; A=<Y>, 0～23 なので 8倍まではオーバーフローしない
+		add			a, a
+		add			a, a
+		add			a, a
+		add			a, a							; Cyが立つ可能性がある
+		rl			h
+		add			a, a							; Cyが立つ可能性がある
+		rl			h
+		add			a, b							; Cyが立つ可能性がある
+		ld			l, a
+		ld			a, h
+		adc			a, 0
+		ld			h, a
+		push		hl								; 求めた VRAMアドレスを保存
+
+		exx											; DE=<String>, HL=BASIC code
+		push		hl
+		ex			de, hl
+		
+
+		exx
+		pop			hl								; HL=<String>
+		ld			c, [hl]							; A=文字列の長さ
+		inc			hl
+		ld			e, [hl]
+		inc			hl
+		ld			d, [hl]							; DE=<文字列のアドレス>
+		pop			hl
+
+		ld			a, c
+		or			a, a
+		jp			z, exit_bput					; 文字列が空なら何もしない
+
+
+loop_y:
+		push		hl								; 行頭VRAMアドレス保存
+		call		bsup_setwrt
+		ex			de, hl							; HL=文字列アドレス
+		ld			a, b							; A = <X>
+loop_x:
+		cp			a, 32							; 右にはみ出してる場合は VRAM に書き込まない
+		ld			e, a
+		ld			a, [hl]							; 描画対象の文字を得る
+		inc			hl
+		jp			nc, skip_vram_write				; CP A,32 の結果、右にはみ出してる場合は OUT をスキップ
+		out			[0x98], a
+skip_vram_write:
+		dec			d								; 1文字処理したので減らす
+		jp			z, exit_bput					; 文字列が終わったか判定
+		ld			a, e
+		inc			a
+		cp			a, c							; 所望の幅終わったか判定
+		jp			nz, loop_x
+		ex			de, hl							; DE = 文字列
+		pop			hl								; 行頭VRAMアドレス
+		ld			a, 32							; HL = HL + 32
+		add			a, l
+		ld			l, a
+		ld			a, 0
+		adc			a, h
+		ld			h, a
+
+
+exit_bput:
 		exx
 		dec			hl
 		ld			ix, calbas_chrgtr
